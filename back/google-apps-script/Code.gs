@@ -103,6 +103,7 @@ function montarPayloadDaData_(data) {
   var registros = listarRegistrosDaData_(data);
   var progressoLivro = calcularProgressoLivro_();
   var sequencia = calcularSequencia_();
+  var melhorHorario = calcularMelhorHorario_();
   var concluidos = [];
   var progresso = {};
 
@@ -130,6 +131,37 @@ function montarPayloadDaData_(data) {
     progress: progresso,
     bookProgress: progressoLivro,
     streak: sequencia,
+    bestHabitTime: melhorHorario,
+  };
+}
+
+
+function calcularMelhorHorario_() {
+  var aba = obterAbaValidada_(NOME_ABA_REGISTROS, COLUNAS_REGISTROS);
+  var contagemPorHora = {};
+  if (aba.getLastRow() >= 2) {
+    var linhas = aba.getRange(2, 1, aba.getLastRow() - 1, COLUNAS_REGISTROS.length).getValues();
+    linhas.forEach(function (linha) {
+      if (!paraBooleano_(linha[2]) || !linha[6]) return;
+      var data = new Date(linha[6]);
+      if (isNaN(data.getTime())) return;
+      var hora = Number(Utilities.formatDate(data, Session.getScriptTimeZone(), 'H'));
+      contagemPorHora[hora] = (contagemPorHora[hora] || 0) + 1;
+    });
+  }
+
+  var melhorHora = null;
+  Object.keys(contagemPorHora).forEach(function (hora) {
+    var horaNumerica = Number(hora);
+    if (melhorHora === null || contagemPorHora[hora] > contagemPorHora[melhorHora]) {
+      melhorHora = horaNumerica;
+    }
+  });
+  if (melhorHora === null) return null;
+  return {
+    hour: melhorHora,
+    label: String(melhorHora).padStart(2, '0') + 'h–' + String((melhorHora + 1) % 24).padStart(2, '0') + 'h',
+    count: contagemPorHora[melhorHora],
   };
 }
 
