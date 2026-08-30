@@ -1,0 +1,35 @@
+# Python
+back/.venv/
+back/__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# Estado local e dados de execução
+back/dados.json
+back/*.tmp
+*.sqlite3
+*.db
+.env
+.env.*
+!.env.example
+
+# Node/Vite
+front/node_modules/
+front/dist/
+**/.vite/
+npm-debug.log*
+
+# Saída local do GitHub Pages
+docs/*
+!docs/.gitkeep
+
+# Sistema/editor
+.DS_Store
+.idea/
+.vscode/
+
+# Metadados locais do Maestri
+desenvolvimento-web/
+.maestri/

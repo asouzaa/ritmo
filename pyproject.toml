@@ -1,0 +1,8 @@
+[project]
+name = "ritmo"
+version = "0.1.0"
+description = "Planejamento diário de estudos, hábitos saudáveis e dopamina limpa."
+requires-python = ">=3.11"
+
+[tool.unittest]
+start-dir = "testes"
