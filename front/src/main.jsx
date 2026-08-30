@@ -101,6 +101,7 @@ function normalizeData(payload, requestedDate, source = 'api') {
     date: payload?.date || requestedDate,
     habits: habits.map((habit) => ({ ...habit, category: normalizeCategory(habit) })),
     completed: Array.isArray(payload?.completed) ? payload.completed : [],
+    bookProgress: payload?.bookProgress || null,
     source,
   }
 }
@@ -369,6 +370,14 @@ function App() {
     ? parseDate(displayDate).toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' }).toUpperCase()
     : 'CARREGANDO DATA'
   const numericDate = displayDate ? parseDate(displayDate).toLocaleDateString('pt-BR') : '—'
+  const paginasRegistradasLocalmente = Object.values(realizadoPorData)
+    .reduce((total, registros) => total + Math.max(0, Number(registros?.read) || 0), 0)
+  const totalDaApi = data?.bookProgress?.totalPagesRead
+  const paginasRegistradas = totalDaApi !== undefined && totalDaApi !== null
+    ? Math.max(0, Number(totalDaApi) || 0)
+    : paginasRegistradasLocalmente
+  const paginasRestantes = Math.max(275 - paginasRegistradas, 0)
+  const progressoDoLivro = Math.min(Math.round((paginasRegistradas / 275) * 100), 100)
 
   return <main className="page-shell">
     <header className="topbar">
@@ -434,7 +443,7 @@ function App() {
       <aside className="side-column"><div className="focus-card"><div className="card-label"><span>◉</span> FOCO DIÁRIO</div><div className="daily-focus-list">{[
         { id: 'study', title: 'Estudo', meta: 'Meta de 1h', unit: 'min' },
         { id: 'questions', title: 'Questões', meta: 'Meta de 20 questões', unit: 'questões' },
-      ].map((item) => { const details = detalhesDaMeta(item.id); return <div className="daily-focus-item" key={item.id}><div className="daily-focus-top"><div><strong>{item.title}</strong><small>{item.meta}</small></div><span>{Number(details.realizado) || 0} {item.unit}</span></div><div className="daily-focus-progress" role="progressbar" aria-label={`Progresso diário de ${item.title}`} aria-valuemin="0" aria-valuemax="100" aria-valuenow={Math.min(details.progresso, 100)}><span style={{ width: `${Math.min(details.progresso, 100)}%` }} /></div><small>Realizado · {details.texto}</small></div> })}</div></div><div className="insight-card"><span className="insight-icon">☼</span><div><strong>Seu melhor horário</strong><p>Você tem concluído mais hábitos entre 7h e 9h.</p></div></div></aside>
+      ].map((item) => { const details = detalhesDaMeta(item.id); return <div className="daily-focus-item" key={item.id}><div className="daily-focus-top"><div><strong>{item.title}</strong><small>{item.meta}</small></div><span>{Number(details.realizado) || 0} {item.unit}</span></div><div className="daily-focus-progress" role="progressbar" aria-label={`Progresso diário de ${item.title}`} aria-valuemin="0" aria-valuemax="100" aria-valuenow={Math.min(details.progresso, 100)}><span style={{ width: `${Math.min(details.progresso, 100)}%` }} /></div><small>Realizado · {details.texto}</small></div> })}<div className="daily-focus-item"><div className="daily-focus-top"><div><strong>Livro técnico</strong><small>275 páginas no total</small></div><span>{paginasRegistradas} páginas</span></div><div className="daily-focus-progress" role="progressbar" aria-label="Progresso do livro técnico" aria-valuemin="0" aria-valuemax="100" aria-valuenow={progressoDoLivro}><span style={{ width: `${progressoDoLivro}%` }} /></div><small>Faltam {paginasRestantes} páginas</small></div></div></div><div className="insight-card"><span className="insight-icon">☼</span><div><strong>Seu melhor horário</strong><p>Você tem concluído mais hábitos entre 7h e 9h.</p></div></div></aside>
     </section>
     {message && <div className="toast" role="status">✦ {message}</div>}
   </main>

@@ -23,6 +23,7 @@ var COLUNAS_REGISTROS = [
 ];
 
 var CAMPOS_PROGRESSO = ['pages', 'minutes', 'quantity'];
+var TOTAL_PAGINAS_LIVRO = 275;
 
 var HABITOS_INICIAIS = [
   ['bed', 'Arrumar a cama', 'Começar o dia com intenção', '◒', 'sage', 'dopamina-limpa', true],
@@ -100,6 +101,7 @@ function configurarPlanilha() {
 function montarPayloadDaData_(data) {
   var habitos = listarHabitos_();
   var registros = listarRegistrosDaData_(data);
+  var progressoLivro = calcularProgressoLivro_();
   var concluidos = [];
   var progresso = {};
 
@@ -125,6 +127,7 @@ function montarPayloadDaData_(data) {
     habits: habitos,
     completed: concluidos,
     progress: progresso,
+    bookProgress: progressoLivro,
   };
 }
 
@@ -180,6 +183,34 @@ function listarRegistrosDaData_(data) {
         quantity: lerNumeroDaCelula_(linha[5], 'quantity'),
       };
     });
+}
+
+
+function calcularProgressoLivro_() {
+  var aba = obterAbaValidada_(NOME_ABA_REGISTROS, COLUNAS_REGISTROS);
+  var totalPaginasLidas = 0;
+
+  if (aba.getLastRow() >= 2) {
+    var linhas = aba
+      .getRange(2, 1, aba.getLastRow() - 1, COLUNAS_REGISTROS.length)
+      .getValues();
+
+    linhas.forEach(function (linha) {
+      if (String(linha[1]).trim() !== 'read') {
+        return;
+      }
+      var paginas = lerNumeroDaCelula_(linha[3], 'pages');
+      if (paginas !== null) {
+        totalPaginasLidas += paginas;
+      }
+    });
+  }
+
+  return {
+    totalPages: TOTAL_PAGINAS_LIVRO,
+    totalPagesRead: totalPaginasLidas,
+    remainingPages: Math.max(TOTAL_PAGINAS_LIVRO - totalPaginasLidas, 0),
+  };
 }
 
 

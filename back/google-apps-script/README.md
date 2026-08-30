@@ -80,9 +80,18 @@ Resposta:
   "completed": ["read"],
   "progress": {
     "read": { "pages": 10 }
+  },
+  "bookProgress": {
+    "totalPages": 275,
+    "totalPagesRead": 68,
+    "remainingPages": 207
   }
 }
 ```
+
+`bookProgress` é global: aparece em todos os GETs e POSTs e soma `pages` de
+todos os registros cujo `habitId` seja `read`, sem limitar a soma à data
+solicitada. `remainingPages` nunca fica abaixo de zero.
 
 ### Alternar conclusão
 
