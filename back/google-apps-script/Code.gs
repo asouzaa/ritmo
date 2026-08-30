@@ -102,6 +102,7 @@ function montarPayloadDaData_(data) {
   var habitos = listarHabitos_();
   var registros = listarRegistrosDaData_(data);
   var progressoLivro = calcularProgressoLivro_();
+  var sequencia = calcularSequencia_();
   var concluidos = [];
   var progresso = {};
 
@@ -128,7 +129,58 @@ function montarPayloadDaData_(data) {
     completed: concluidos,
     progress: progresso,
     bookProgress: progressoLivro,
+    streak: sequencia,
   };
+}
+
+
+function calcularSequencia_() {
+  var habitos = listarHabitos_();
+  var aba = obterAbaValidada_(NOME_ABA_REGISTROS, COLUNAS_REGISTROS);
+  var porData = {};
+  if (aba.getLastRow() >= 2) {
+    var linhas = aba.getRange(2, 1, aba.getLastRow() - 1, COLUNAS_REGISTROS.length).getValues();
+    linhas.forEach(function (linha) {
+      var data = normalizarDataDaCelula_(linha[0]);
+      if (!data) return;
+      if (!porData[data]) porData[data] = {};
+      porData[data][String(linha[1]).trim()] = {
+        completed: paraBooleano_(linha[2]),
+        pages: lerNumeroDaCelula_(linha[3], 'pages') || 0,
+        minutes: lerNumeroDaCelula_(linha[4], 'minutes') || 0,
+        quantity: lerNumeroDaCelula_(linha[5], 'quantity') || 0,
+      };
+    });
+  }
+
+  var hoje = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
+  var sequencia = 0;
+  var dataAtual = new Date(hoje + 'T12:00:00Z');
+  while (true) {
+    var chave = Utilities.formatDate(dataAtual, 'UTC', 'yyyy-MM-dd');
+    if (!diaCompleto_(habitos, porData[chave])) break;
+    sequencia += 1;
+    dataAtual.setUTCDate(dataAtual.getUTCDate() - 1);
+  }
+  return sequencia;
+}
+
+
+function diaCompleto_(habitos, registros) {
+  if (!registros) return false;
+  var exercicioConcluido = false;
+  return habitos.every(function (habito) {
+    var registro = registros[habito.id];
+    if (habito.id === 'run' || habito.id === 'strength') {
+      exercicioConcluido = exercicioConcluido || Boolean(registro && registro.completed);
+      return true;
+    }
+    if (!registro || !registro.completed) return false;
+    if (habito.id === 'read') return registro.pages >= 10;
+    if (habito.id === 'study') return registro.minutes >= 60;
+    if (habito.id === 'questions') return registro.quantity >= 20;
+    return true;
+  }) && exercicioConcluido;
 }
 
 

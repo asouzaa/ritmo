@@ -103,6 +103,7 @@ function normalizeData(payload, requestedDate, source = 'api') {
     }),
     completed: Array.isArray(payload?.completed) ? payload.completed : [],
     bookProgress: payload?.bookProgress || null,
+    streak: Number.isFinite(Number(payload?.streak)) ? Math.max(0, Number(payload.streak)) : 0,
     source,
   }
 }
@@ -377,11 +378,12 @@ function App() {
     : paginasRegistradasLocalmente
   const paginasRestantes = Math.max(275 - paginasRegistradas, 0)
   const progressoDoLivro = Math.min(Math.round((paginasRegistradas / 275) * 100), 100)
+  const diasDeRitmo = data?.streak || 0
 
   return <main className="page-shell">
     <header className="topbar">
       <div className="brand"><span className="brand-mark">✳</span><span>ritmo</span></div>
-      <div className="topbar-right"><span className="streak"><span className="flame">♨</span> 4 dias de ritmo</span><button className="avatar" aria-label="Abrir perfil">AS</button></div>
+      <div className="topbar-right"><span className="streak"><span className="flame">♨</span> {diasDeRitmo} {diasDeRitmo === 1 ? 'dia' : 'dias'} de ritmo</span><button className="avatar" aria-label="Abrir perfil">AS</button></div>
     </header>
 
     <section className="hero">
