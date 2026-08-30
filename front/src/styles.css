@@ -4,3 +4,49 @@
 .week-toolbar{display:flex;align-items:center;justify-content:center;gap:14px;margin:-7px 0 20px}.week-arrow,.today-button{border:1px solid #dfe4da;background:#fbfcf8;color:#4d6250;border-radius:999px;height:32px;cursor:pointer}.week-arrow{width:32px;font-size:16px}.today-button{padding:0 17px;font:600 10px 'DM Mono';letter-spacing:.08em;text-transform:uppercase}.week-arrow:hover,.today-button:hover{border-color:#9db598;background:#f2f7ef}.today-button:disabled{cursor:default;opacity:.45}.status-banner{display:flex;align-items:center;justify-content:space-between;gap:20px;margin:22px 0 -16px;padding:12px 16px;border:1px solid #dfe5d9;border-radius:10px;background:#f2f6ee;color:#667463;font-size:11px}.status-banner.error{border-color:#ead7ca;background:#fbf3ed;color:#845f4a}.status-banner button{flex:none;border:0;background:none;color:inherit;font:700 10px Manrope;text-decoration:underline;cursor:pointer}.category-legend{display:flex;flex-wrap:wrap;gap:7px;margin:-8px 0 18px}.category-badge{display:inline-flex;align-items:center;width:max-content;border-radius:999px;padding:4px 8px;font:500 8px 'DM Mono';letter-spacing:.07em;text-transform:uppercase}.category-badge.dopamina-limpa{background:#e8f1e3;color:#587653}.category-badge.foco{background:#e5edf3;color:#557787}.category-badge.recompensa{background:#f6eadf;color:#996d4e}.habit-card.category-dopamina-limpa{border-left:3px solid #a7c59f}.habit-card.category-foco{border-left:3px solid #9eb9c7}.habit-card.category-recompensa{border-left:3px solid #dfb28f}.habit-card:disabled{cursor:wait;opacity:.72;transform:none}.habit-info .category-badge{margin-bottom:1px}.content-grid[aria-busy=true]{opacity:.7;transition:opacity .2s}@media(max-width:760px){.week-toolbar{margin:-5px 0 18px}.status-banner{align-items:flex-start;margin-top:18px}.category-legend{margin-top:-4px}.habit-card{padding:14px 13px}.habit-info .category-badge{font-size:7px}}
 .habit-card{cursor:default}.habit-card.has-flexible-goal{align-items:flex-start}.habit-card .checkbox{flex:none;padding:0;background:#fff;cursor:pointer}.habit-card .checkbox:focus-visible,.number-control input:focus-visible{outline:2px solid #6e986a;outline-offset:2px}.habit-card .checkbox:disabled{cursor:wait;opacity:.65}.flexible-goal{display:flex;flex-direction:column;gap:9px;margin-top:8px;padding-top:12px;border-top:1px solid #e8ebe4}.goal-values{display:flex;align-items:flex-end;justify-content:space-between;gap:18px}.suggested-goal,.realized-goal{display:flex;flex-direction:column;gap:5px}.suggested-goal small,.realized-goal>small,.goal-progress-copy small{font:500 8px 'DM Mono';letter-spacing:.08em;text-transform:uppercase;color:#969d93}.suggested-goal strong{font-size:12px;color:#5f695e}.number-control{display:flex;align-items:center;gap:6px}.number-control input{width:60px;border:1px solid #d8ded3;border-radius:7px;background:#fbfcf9;color:#354438;padding:7px 8px;font:600 12px Manrope}.number-control span{font-size:10px;color:#858d82}.goal-progress-copy{display:flex;align-items:center;justify-content:space-between}.goal-progress-copy strong{font:600 10px 'DM Mono';color:#657e63}.goal-progress{display:block;height:4px;overflow:hidden;border-radius:999px;background:#e8ece5}.goal-progress>span{display:block;height:100%;border-radius:inherit;background:#7ea778;transition:width .2s}@media(max-width:760px){.goal-values{align-items:flex-start;flex-direction:column;gap:10px}.number-control input{width:72px}}
 .habit-card span.checkbox{cursor:default}.mint{background:#e1f0e8;color:#5d8b73}.rose{background:#f3e6e4;color:#a36f68}.daily-focus-list{display:flex;flex-direction:column;gap:12px;margin-top:20px}.daily-focus-item{padding:15px;border:1px solid #526452;border-radius:11px;background:#35493a}.daily-focus-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}.daily-focus-top>div{display:flex;flex-direction:column;gap:4px}.daily-focus-top strong{font-size:12px}.daily-focus-top small,.daily-focus-item>small{color:#aebdac;font-size:9px}.daily-focus-top>span{font:600 10px 'DM Mono';color:#c9ddc4}.daily-focus-progress{height:4px;overflow:hidden;border-radius:999px;background:#526554;margin-bottom:8px}.daily-focus-progress span{display:block;height:100%;border-radius:inherit;background:#b3d1a7;transition:width .2s}
+
+@media (max-width: 900px) {
+  .page-shell { padding: 0 24px 48px; }
+  .hero { align-items: flex-start; flex-direction: column; gap: 28px; padding: 52px 0 36px; }
+  .hero-quote { margin: 0; }
+  .content-grid { grid-template-columns: 1fr; gap: 28px; padding-top: 32px; }
+  .side-column { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
+  .focus-card { margin-top: 0; }
+  .insight-card { margin-top: 0; }
+  .week-nav { overflow-x: auto; justify-content: flex-start; padding-bottom: 18px; scrollbar-width: thin; }
+  .day { flex: 0 0 72px; }
+}
+
+@media (max-width: 600px) {
+  .page-shell { padding: 0 16px 36px; }
+  .topbar { height: 68px; }
+  .topbar-right { gap: 12px; }
+  .streak { display: none; }
+  .hero { padding: 38px 0 28px; gap: 22px; }
+  .hero h1 { font-size: 37px; }
+  .subhead { font-size: 14px; }
+  .hero-quote { font-size: 12px; }
+  .week-toolbar { gap: 8px; }
+  .week-arrow, .today-button { min-height: 40px; }
+  .day { flex-basis: 64px; }
+  .content-grid { padding-top: 26px; }
+  .section-heading { align-items: flex-start; flex-direction: column; gap: 8px; }
+  .category-legend { gap: 6px; }
+  .progress-card { padding: 18px; }
+  .progress-copy { align-items: flex-start; padding-right: 24px; }
+  .habit-card { gap: 11px; padding: 13px; }
+  .habit-icon { width: 32px; height: 32px; }
+  .checkbox { width: 28px; height: 28px; }
+  .side-column { display: block; }
+  .insight-card { margin-top: 14px; }
+  .daily-focus-top { gap: 8px; }
+}
+
+@media (max-width: 380px) {
+  .hero h1 { font-size: 33px; }
+  .brand { font-size: 18px; }
+  .avatar { display: none; }
+  .habit-card { align-items: flex-start; }
+  .habit-card .checkbox { margin-top: 2px; }
+  .goal-values { gap: 8px; }
+}

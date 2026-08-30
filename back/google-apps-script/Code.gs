@@ -31,8 +31,8 @@ var HABITOS_INICIAIS = [
   ['read', 'Ler 10 páginas', 'Leitura diária', '✦', 'peach', 'recompensa', true],
   ['study', 'Estudar por 1h', 'Uma sessão de foco', '⌁', 'blue', 'foco', true],
   ['questions', 'Resolver 20 questões', 'Praticar para fixar', '⊹', 'yellow', 'foco', true],
-  ['run', 'Corrida', 'Meta de 3 sessões por semana', '↗', 'mint', 'dopamina-limpa', true],
-  ['strength', 'Musculação', 'Meta de 4 sessões por semana', '◆', 'rose', 'dopamina-limpa', true],
+  ['run', 'Corrida', 'Movimento no seu ritmo', '↗', 'mint', 'dopamina-limpa', true],
+  ['strength', 'Musculação', 'Treino de força com presença', '◆', 'rose', 'dopamina-limpa', true],
 ];
 
 

@@ -41,8 +41,6 @@ const metasFlexiveis = {
   read: { sugerida: 10, rotulo: '10 páginas', unidade: 'páginas', campo: 'pages', ariaLabel: 'Páginas realizadas' },
   study: { sugerida: 60, rotulo: '1h', unidade: 'minutos', campo: 'minutes', ariaLabel: 'Minutos estudados' },
   questions: { sugerida: 20, rotulo: '20 questões', unidade: 'questões', campo: 'quantity', ariaLabel: 'Questões realizadas' },
-  run: { semanal: 3, rotulo: '3x/semana', unidade: 'minutos', campo: 'minutes', ariaLabel: 'Minutos de corrida realizados' },
-  strength: { semanal: 4, rotulo: '4x/semana', unidade: 'exercícios', campo: 'quantity', ariaLabel: 'Exercícios de musculação realizados' },
 }
 
 function parseDate(value) {
@@ -99,7 +97,10 @@ function normalizeData(payload, requestedDate, source = 'api') {
   })
   return {
     date: payload?.date || requestedDate,
-    habits: habits.map((habit) => ({ ...habit, category: normalizeCategory(habit) })),
+    habits: habits.map((habit) => {
+      const exercise = exerciseHabits.find((item) => item.id === habit.id)
+      return { ...habit, ...(exercise ? { meta: exercise.meta } : {}), category: normalizeCategory(habit) }
+    }),
     completed: Array.isArray(payload?.completed) ? payload.completed : [],
     bookProgress: payload?.bookProgress || null,
     source,
@@ -344,21 +345,12 @@ function App() {
     const realizado = realizadoPorData[selectedDate]?.[habitId] ?? ''
     if (!meta) return { realizado, progresso: 0, texto: '0%' }
 
-    if (meta.semanal) {
-      const inicio = startOfWeek(selectedDate)
-      const sessoes = Array.from({ length: 7 }, (_, index) => toISO(addDays(inicio, index)))
-        .filter((date) => Number(realizadoPorData[date]?.[habitId]) > 0).length
-      const progresso = Math.round((sessoes / meta.semanal) * 100)
-      return { realizado, progresso, texto: `${sessoes} de ${meta.semanal} sessões` }
-    }
-
     const progresso = Math.round(((Number(realizado) || 0) / meta.sugerida) * 100)
     return { realizado, progresso, texto: `${progresso}%` }
   }
 
   const data = days[selectedDate]
-  const exerciciosRegistrados = exerciseHabits.filter((habit) => Number(realizadoPorData[selectedDate]?.[habit.id]) > 0).map((habit) => habit.id)
-  const completedCount = new Set([...(data?.completed || []), ...exerciciosRegistrados]).size
+  const completedCount = data?.completed.length || 0
   const totalHabits = data?.habits.length || 0
   const metasAtivas = data?.habits.filter((habit) => metasFlexiveis[habit.id]) || []
   const pontosDasMetas = metasAtivas.reduce((total, habit) => total + Math.min(detalhesDaMeta(habit.id).progresso / 100, 1), 0)
@@ -416,7 +408,6 @@ function App() {
           const done = data.completed.includes(habit.id)
           const meta = metasFlexiveis[habit.id]
           const { realizado, progresso: progressoMeta, texto: textoProgresso } = detalhesDaMeta(habit.id)
-          const exercicioRegistrado = Boolean(meta?.semanal && Number(realizado) > 0)
 
           return <article key={habit.id} className={`habit-card category-${habit.category} ${meta ? 'has-flexible-goal' : ''} ${done ? 'done' : ''}`}>
             <span className={`habit-icon ${habit.color}`}>{habit.icon}</span>
@@ -426,16 +417,14 @@ function App() {
               <small>{habit.meta}</small>
               {meta && <span className="flexible-goal">
                 <span className="goal-values">
-                  <span className="suggested-goal"><small>{meta.semanal ? 'Referência semanal' : 'Meta sugerida'}</small><strong>{meta.rotulo}</strong></span>
+                  <span className="suggested-goal"><small>Meta sugerida</small><strong>{meta.rotulo}</strong></span>
                   <label className="realized-goal"><small>Realizado</small><span className="number-control"><input type="number" min="0" step="1" inputMode="numeric" value={realizado} placeholder="0" aria-label={meta.ariaLabel} onChange={(event) => registrarRealizado(habit.id, event.target.value)} onBlur={(event) => salvarProgresso(habit.id, event.target.value)} /><span>{meta.unidade}</span></span></label>
                 </span>
                 <span className="goal-progress-copy"><small>Progresso</small><strong>{textoProgresso}</strong></span>
                 <span className="goal-progress" role="progressbar" aria-label={`Progresso de ${habit.title}`} aria-valuemin="0" aria-valuemax="100" aria-valuenow={Math.min(progressoMeta, 100)}><span style={{ width: `${Math.min(progressoMeta, 100)}%` }} /></span>
               </span>}
             </span>
-            {meta?.semanal
-              ? <span className={`checkbox ${exercicioRegistrado ? 'checked' : ''}`} role="img" aria-label={exercicioRegistrado ? `${habit.title} registrada no dia` : `${habit.title} sem registro no dia`}>{exercicioRegistrado && '✓'}</span>
-              : <button type="button" className={`checkbox ${done ? 'checked' : ''}`} onClick={() => toggleHabit(habit.id)} disabled={Boolean(syncingHabit)} aria-pressed={done} aria-label={`${done ? 'Desmarcar' : 'Marcar'} ${habit.title} como concluído`}>{syncingHabit === habit.id ? '…' : done && '✓'}</button>}
+            <button type="button" className={`checkbox ${done ? 'checked' : ''}`} onClick={() => toggleHabit(habit.id)} disabled={Boolean(syncingHabit)} aria-pressed={done} aria-label={`${done ? 'Desmarcar' : 'Marcar'} ${habit.title} como concluído`}>{done ? '✓' : syncingHabit === habit.id ? '…' : ''}</button>
           </article>
         })}</div>
         <div className="reward-note"><span>✧</span><p><strong>O prazer está no processo.</strong><br />Cada confirmação sincronizada é uma escolha feita com intenção.</p></div>
