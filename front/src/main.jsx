@@ -2,7 +2,10 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import './styles.css'
 
-const API = (import.meta.env.VITE_API_URL || 'http://localhost:8000/api').replace(/\/$/, '')
+const API = (import.meta.env.VITE_API_URL || '').trim().replace(/\/$/, '')
+const MODO_ESTATICO = !API
+const CHAVE_CONCLUIDOS = 'ritmo-concluidos-por-data'
+const CHAVE_REALIZADO = 'ritmo-realizado-por-data'
 
 const exerciseHabits = [
   { id: 'run', title: 'Corrida', meta: 'Movimento no seu ritmo', icon: '↗', color: 'mint' },
@@ -35,11 +38,11 @@ const categoryLabels = {
 }
 
 const metasFlexiveis = {
-  read: { sugerida: 10, rotulo: '10 páginas', unidade: 'páginas', ariaLabel: 'Páginas realizadas' },
-  study: { sugerida: 60, rotulo: '1h', unidade: 'minutos', ariaLabel: 'Minutos estudados' },
-  questions: { sugerida: 20, rotulo: '20 questões', unidade: 'questões', ariaLabel: 'Questões realizadas' },
-  run: { semanal: 3, rotulo: '3x/semana', unidade: 'minutos', ariaLabel: 'Minutos de corrida realizados' },
-  strength: { semanal: 4, rotulo: '4x/semana', unidade: 'exercícios', ariaLabel: 'Exercícios de musculação realizados' },
+  read: { sugerida: 10, rotulo: '10 páginas', unidade: 'páginas', campo: 'pages', ariaLabel: 'Páginas realizadas' },
+  study: { sugerida: 60, rotulo: '1h', unidade: 'minutos', campo: 'minutes', ariaLabel: 'Minutos estudados' },
+  questions: { sugerida: 20, rotulo: '20 questões', unidade: 'questões', campo: 'quantity', ariaLabel: 'Questões realizadas' },
+  run: { semanal: 3, rotulo: '3x/semana', unidade: 'minutos', campo: 'minutes', ariaLabel: 'Minutos de corrida realizados' },
+  strength: { semanal: 4, rotulo: '4x/semana', unidade: 'exercícios', campo: 'quantity', ariaLabel: 'Exercícios de musculação realizados' },
 }
 
 function parseDate(value) {
@@ -69,6 +72,14 @@ function localToday() {
   return toISO(new Date())
 }
 
+function lerDadosLocais(chave) {
+  try {
+    return JSON.parse(window.localStorage.getItem(chave)) || {}
+  } catch {
+    return {}
+  }
+}
+
 function normalizeCategory(habit) {
   const raw = String(habit.category || habit.type || habit.goal || categoryById[habit.id] || 'dopamina-limpa')
     .normalize('NFD')
@@ -94,15 +105,30 @@ function normalizeData(payload, requestedDate, source = 'api') {
   }
 }
 
-async function requestJSON(path, options) {
+function urlDaData(date) {
+  const separator = API.includes('?') ? '&' : '?'
+  return `${API}${separator}date=${encodeURIComponent(date)}`
+}
+
+function progressoDoPayload(payload) {
+  return Object.entries(payload?.progress || {}).reduce((valores, [habitId, progresso]) => {
+    const campo = metasFlexiveis[habitId]?.campo
+    if (campo && progresso[campo] !== undefined) valores[habitId] = Number(progresso[campo])
+    return valores
+  }, {})
+}
+
+async function requestJSON(url, options) {
   let response
   try {
-    response = await fetch(`${API}${path}`, options)
+    response = await fetch(url, options)
   } catch {
     throw new Error('Não foi possível conectar à API.')
   }
   if (!response.ok) throw new Error(`A API respondeu com status ${response.status}.`)
-  return response.json()
+  const payload = await response.json()
+  if (payload?.error) throw new Error(payload.error)
+  return payload
 }
 
 function App() {
@@ -114,40 +140,50 @@ function App() {
   const [syncingHabit, setSyncingHabit] = useState('')
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
-  const [realizadoPorData, setRealizadoPorData] = useState(() => {
-    try {
-      return JSON.parse(window.localStorage.getItem('ritmo-realizado-por-data')) || {}
-    } catch {
-      return {}
-    }
-  })
+  const [concluidosPorData, setConcluidosPorData] = useState(() => lerDadosLocais(CHAVE_CONCLUIDOS))
+  const [realizadoPorData, setRealizadoPorData] = useState(() => lerDadosLocais(CHAVE_REALIZADO))
 
   useEffect(() => {
-    window.localStorage.setItem('ritmo-realizado-por-data', JSON.stringify(realizadoPorData))
+    window.localStorage.setItem(CHAVE_CONCLUIDOS, JSON.stringify(concluidosPorData))
+  }, [concluidosPorData])
+
+  useEffect(() => {
+    window.localStorage.setItem(CHAVE_REALIZADO, JSON.stringify(realizadoPorData))
   }, [realizadoPorData])
 
   useEffect(() => {
     let active = true
 
     async function loadToday() {
-      setLoadingDate('today')
-      try {
-        const payload = await requestJSON('/today')
-        if (!active) return
-        const date = payload.date || localToday()
-        const normalized = normalizeData(payload, date)
-        setDays({ [date]: normalized })
+      if (MODO_ESTATICO) {
+        const date = localToday()
+        setDays({ [date]: normalizeData({ habits: fallbackHabits, completed: concluidosPorData[date] || [] }, date, 'local') })
         setTodayDate(date)
         setSelectedDate(date)
         setWeekStart(startOfWeek(date))
-      } catch {
+        return
+      }
+
+      setLoadingDate('today')
+      try {
+        const date = localToday()
+        const payload = await requestJSON(urlDaData(date))
+        if (!active) return
+        const responseDate = payload.date || date
+        const normalized = normalizeData(payload, responseDate)
+        setDays({ [responseDate]: normalized })
+        setRealizadoPorData((current) => ({ ...current, [responseDate]: progressoDoPayload(payload) }))
+        setTodayDate(responseDate)
+        setSelectedDate(responseDate)
+        setWeekStart(startOfWeek(responseDate))
+      } catch (requestError) {
         if (!active) return
         const date = localToday()
         setDays({ [date]: normalizeData({ habits: fallbackHabits, completed: [] }, date, 'local') })
         setTodayDate(date)
         setSelectedDate(date)
         setWeekStart(startOfWeek(date))
-        setError('Não foi possível conectar à API. Os dados locais são apenas uma prévia e não serão salvos.')
+        setError(`${requestError.message} Os dados locais são apenas uma prévia e não serão salvos.`)
       } finally {
         if (active) setLoadingDate('')
       }
@@ -158,14 +194,24 @@ function App() {
   }, [])
 
   async function loadDay(date, force = false) {
+    if (MODO_ESTATICO) {
+      setError('')
+      setDays((current) => ({
+        ...current,
+        [date]: normalizeData({ habits: fallbackHabits, completed: concluidosPorData[date] || [] }, date, 'local'),
+      }))
+      return
+    }
+
     if (!force && days[date]?.source === 'api') return
     setLoadingDate(date)
     setError('')
 
     try {
-      const payload = await requestJSON(`/habits/${date}`)
+      const payload = await requestJSON(urlDaData(date))
       if (payload.date && payload.date !== date) throw new Error('A API retornou uma data diferente da solicitada.')
       setDays((current) => ({ ...current, [date]: normalizeData(payload, date) }))
+      setRealizadoPorData((current) => ({ ...current, [date]: progressoDoPayload(payload) }))
     } catch (requestError) {
       setDays((current) => ({
         ...current,
@@ -203,6 +249,26 @@ function App() {
     }))
   }
 
+  async function salvarProgresso(habitId, value) {
+    if (MODO_ESTATICO) return
+    const meta = metasFlexiveis[habitId]
+    if (!meta) return
+
+    const quantidade = value === '' ? 0 : Math.max(0, Number(value))
+    setError('')
+    try {
+      const payload = await requestJSON(API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'progress', date: selectedDate, habitId, [meta.campo]: quantidade }),
+      })
+      setDays((current) => ({ ...current, [selectedDate]: normalizeData(payload, selectedDate) }))
+      setRealizadoPorData((current) => ({ ...current, [selectedDate]: progressoDoPayload(payload) }))
+    } catch (requestError) {
+      setError(requestError.message)
+    }
+  }
+
   async function toggleHabit(id) {
     const currentData = days[selectedDate]
     if (!currentData || syncingHabit) return
@@ -212,19 +278,35 @@ function App() {
       ? currentData.completed.filter((item) => item !== id)
       : [...currentData.completed, id]
 
-    setSyncingHabit(id)
     setError('')
     setDays((current) => ({
       ...current,
       [selectedDate]: { ...current[selectedDate], completed: next },
     }))
 
+    if (MODO_ESTATICO) {
+      setConcluidosPorData((current) => ({ ...current, [selectedDate]: next }))
+      if (!wasCompleted) {
+        const habit = currentData.habits.find((item) => item.id === id)
+        setMessage(`+1 passo: ${habit.title}`)
+        window.setTimeout(() => setMessage(''), 2200)
+      }
+      return
+    }
+
+    setSyncingHabit(id)
+
     try {
-      const result = await requestJSON(`/habits/${selectedDate}/${id}/toggle`, { method: 'POST' })
+      const result = await requestJSON(API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'toggle', date: selectedDate, habitId: id }),
+      })
       setDays((current) => ({
         ...current,
-        [selectedDate]: { ...current[selectedDate], completed: result.completed, source: 'api' },
+        [selectedDate]: normalizeData(result, selectedDate),
       }))
+      setRealizadoPorData((current) => ({ ...current, [selectedDate]: progressoDoPayload(result) }))
 
       if (!wasCompleted) {
         const habit = currentData.habits.find((item) => item.id === id)
@@ -310,8 +392,9 @@ function App() {
       </button>)}
     </nav>
 
-    {error && <div className="status-banner error" role="alert"><span>{error}</span><button onClick={() => loadDay(selectedDate, true)}>Tentar novamente</button></div>}
-    {!error && loadingDate && <div className="status-banner" role="status">Carregando dados do dia…</div>}
+    {MODO_ESTATICO && <div className="status-banner" role="status">Modo local · salvo neste navegador</div>}
+    {!MODO_ESTATICO && error && <div className="status-banner error" role="alert"><span>{error}</span><button onClick={() => loadDay(selectedDate, true)}>Tentar novamente</button></div>}
+    {!MODO_ESTATICO && !error && loadingDate && <div className="status-banner" role="status">Carregando dados do dia…</div>}
 
     <section className="content-grid" aria-busy={Boolean(loadingDate)}>
       <div className="main-column">
@@ -335,7 +418,7 @@ function App() {
               {meta && <span className="flexible-goal">
                 <span className="goal-values">
                   <span className="suggested-goal"><small>{meta.semanal ? 'Referência semanal' : 'Meta sugerida'}</small><strong>{meta.rotulo}</strong></span>
-                  <label className="realized-goal"><small>Realizado</small><span className="number-control"><input type="number" min="0" step="1" inputMode="numeric" value={realizado} placeholder="0" aria-label={meta.ariaLabel} onChange={(event) => registrarRealizado(habit.id, event.target.value)} /><span>{meta.unidade}</span></span></label>
+                  <label className="realized-goal"><small>Realizado</small><span className="number-control"><input type="number" min="0" step="1" inputMode="numeric" value={realizado} placeholder="0" aria-label={meta.ariaLabel} onChange={(event) => registrarRealizado(habit.id, event.target.value)} onBlur={(event) => salvarProgresso(habit.id, event.target.value)} /><span>{meta.unidade}</span></span></label>
                 </span>
                 <span className="goal-progress-copy"><small>Progresso</small><strong>{textoProgresso}</strong></span>
                 <span className="goal-progress" role="progressbar" aria-label={`Progresso de ${habit.title}`} aria-valuemin="0" aria-valuemax="100" aria-valuenow={Math.min(progressoMeta, 100)}><span style={{ width: `${Math.min(progressoMeta, 100)}%` }} /></span>

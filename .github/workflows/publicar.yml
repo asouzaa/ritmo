@@ -37,6 +37,8 @@ jobs:
 
       - name: Construir frontend
         working-directory: front
+        env:
+          VITE_API_URL: https://script.google.com/macros/s/AKfycbyok8aRiQtXxyg3jGUxTvREgV7X-Vdr5fSFmfUByKOt5CmXNAzOoaYPyaZJQyPIRvuR/exec
         run: npm run build
 
       - name: Preparar arquivos do Pages
