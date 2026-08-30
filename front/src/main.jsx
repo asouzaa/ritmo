@@ -43,6 +43,16 @@ const metasFlexiveis = {
   questions: { sugerida: 20, rotulo: '20 questões', unidade: 'questões', campo: 'quantity', ariaLabel: 'Questões realizadas' },
 }
 
+const lembretesDoDia = [
+  'Ficar parada não vai te trazer resultados',
+  'Você merece uma vida melhor',
+  'Você diz que quer mudar, mas continua agindo igual',
+  'Procrastinar é uma escolha',
+  'Não é falta de tempo, é falta de prioridade',
+  'O seu futuro está esperando a sua coragem',
+  'No fundo, você sabe que consegue',
+]
+
 function parseDate(value) {
   return new Date(`${value}T12:00:00`)
 }
@@ -371,6 +381,9 @@ function App() {
     ? parseDate(displayDate).toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' }).toUpperCase()
     : 'CARREGANDO DATA'
   const numericDate = displayDate ? parseDate(displayDate).toLocaleDateString('pt-BR') : '—'
+  const lembreteDoDia = displayDate
+    ? lembretesDoDia[(parseDate(displayDate).getDay() + 6) % 7]
+    : lembretesDoDia[0]
   const paginasRegistradasLocalmente = Object.values(realizadoPorData)
     .reduce((total, registros) => total + Math.max(0, Number(registros?.read) || 0), 0)
   const totalDaApi = data?.bookProgress?.totalPagesRead
@@ -390,7 +403,7 @@ function App() {
 
     <section className="hero">
       <div><p className="eyebrow">{longDate}</p><h1>Um dia de cada vez.</h1><p className="subhead">Pequenas ações, uma mente mais presente.</p></div>
-      <div className="hero-quote"><span>“</span><p>O foco não é fazer tudo.<br />É voltar para o que importa.</p></div>
+      <div className="hero-quote"><span>“</span><p>{lembreteDoDia}</p></div>
     </section>
 
     <div className="week-toolbar">
