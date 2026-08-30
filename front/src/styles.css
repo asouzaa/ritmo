@@ -50,3 +50,9 @@
   .habit-card .checkbox { margin-top: 2px; }
   .goal-values { gap: 8px; }
 }
+
+.habit-card .checkbox.checked {
+  border-color: #6e986a;
+  background: #6e986a;
+  color: #fff;
+}

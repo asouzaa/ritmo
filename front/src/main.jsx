@@ -350,8 +350,15 @@ function App() {
   }
 
   const data = days[selectedDate]
-  const completedCount = data?.completed.length || 0
-  const totalHabits = data?.habits.length || 0
+  const exercicioIds = new Set(['run', 'strength'])
+  const possuiExercicio = Boolean(data?.habits.some((habit) => exercicioIds.has(habit.id)))
+  const fezExercicio = Boolean(data?.completed.some((habitId) => exercicioIds.has(habitId)))
+  const completedCount = data
+    ? data.completed.filter((habitId) => !exercicioIds.has(habitId)).length + (fezExercicio ? 1 : 0)
+    : 0
+  const totalHabits = data
+    ? data.habits.filter((habit) => !exercicioIds.has(habit.id)).length + (possuiExercicio ? 1 : 0)
+    : 0
   const metasAtivas = data?.habits.filter((habit) => metasFlexiveis[habit.id]) || []
   const pontosDasMetas = metasAtivas.reduce((total, habit) => total + Math.min(detalhesDaMeta(habit.id).progresso / 100, 1), 0)
   const totalMonitorado = totalHabits + metasAtivas.length
