@@ -15,48 +15,100 @@
   .hero-quote { margin: 0; }
   .content-grid { grid-template-columns: 1fr; gap: 28px; padding-top: 32px; }
   .side-column { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
-  .focus-card { margin-top: 0; }
-  .insight-card { margin-top: 0; }
+  .focus-card, .insight-card { margin-top: 0; }
   .week-nav { overflow-x: auto; justify-content: flex-start; padding-bottom: 18px; scrollbar-width: thin; }
   .day { flex: 0 0 72px; }
 }
 
 @media (max-width: 600px) {
-  .page-shell { padding: 0 16px 36px; }
-  .topbar { height: 68px; }
+  html { font-size: 16px; }
+  body { overflow-x: hidden; background: #f7eff6; font-size: 16px; line-height: 1.55; }
+  .page-shell { width: 100%; max-width: none; padding: 0 20px 48px; }
+  .topbar { height: 70px; border-bottom-color: #e7dce7; }
   .topbar-right { gap: 12px; }
   .streak { display: none; }
-  .hero { padding: 38px 0 28px; gap: 22px; }
-  .hero h1 { font-size: 37px; }
-  .subhead { font-size: 14px; }
-  .hero-quote { font-size: 12px; }
-  .week-toolbar { gap: 8px; }
-  .week-arrow, .today-button { min-height: 40px; }
-  .day { flex-basis: 64px; }
-  .content-grid { padding-top: 26px; }
-  .section-heading { align-items: flex-start; flex-direction: column; gap: 8px; }
-  .category-legend { gap: 6px; }
-  .progress-card { padding: 18px; }
-  .progress-copy { align-items: flex-start; padding-right: 24px; }
-  .habit-card { gap: 11px; padding: 13px; }
-  .habit-icon { width: 32px; height: 32px; }
-  .checkbox { width: 28px; height: 28px; }
-  .side-column { display: block; }
-  .insight-card { margin-top: 14px; }
-  .daily-focus-top { gap: 8px; }
+  .brand { font-size: 20px; }
+  .brand-mark { background: #e5d8ee; color: #75618e; }
+  .hero { gap: 26px; padding: 42px 0 32px; }
+  .hero h1 { font-size: 40px; line-height: 1.1; }
+  .subhead { font-size: 16px; line-height: 1.5; }
+  .hero-quote { max-width: 100%; margin: 0; padding-left: 16px; border-left-color: #d7c7de; font-size: 15px; line-height: 1.55; }
+  .hero-quote p { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
+  .week-toolbar { margin: 0 0 16px; gap: 10px; }
+  .week-arrow, .today-button { min-height: 42px; }
+  .week-arrow { width: 42px; }
+  .today-button { padding: 0 18px; font-size: 11px; }
+  .week-nav { justify-content: flex-start; gap: 8px; margin-right: -20px; padding: 0 20px 20px 0; overflow-x: auto; scrollbar-width: thin; }
+  .day { flex: 0 0 68px; min-height: 74px; padding: 9px 4px; border: 1px solid #eadfea; border-radius: 14px; background: #fff; box-shadow: 0 5px 16px #654d6c0b; }
+  .day span { font-size: 10px; }
+  .day strong { width: 42px; height: 42px; font-size: 16px; }
+  .day i { top: 7px; right: 7px; width: 17px; height: 17px; line-height: 17px; font-size: 10px; }
+  .content-grid { display: flex; flex-direction: column; padding-top: 30px; }
+  .main-column, .side-column { min-width: 0; }
+  .side-column { display: block; order: -1; margin-top: 0; margin-bottom: 32px; }
+  .section-heading { align-items: flex-start; gap: 8px; margin-bottom: 18px; }
+  .section-heading h2 { font-size: 27px; line-height: 1.2; }
+  .date-label { display: block; padding-top: 3px; font-size: 11px; }
+  .category-legend { gap: 7px; margin-bottom: 16px; }
+  .category-badge { font-size: 9px; }
+  .progress-card { padding: 22px 20px 20px; border: 0; border-radius: 16px; background: #2e4033; color: #fff; box-shadow: 0 12px 30px #29382c24; }
+  .progress-copy { align-items: flex-start; gap: 13px; padding-right: 24px; }
+  .progress-ring { width: 56px; height: 56px; flex: none; border-color: #526854; border-right-color: #b7d9ad; color: #e7f3e3; }
+  .progress-copy strong { font-size: 15px; line-height: 1.35; }
+  .progress-copy p { color: #c9d5c7; font-size: 13px; line-height: 1.45; }
+  .progress-emoji { top: 27px; right: 20px; color: #b7d9ad; }
+  .progress-track { background: #526554; }
+  .progress-track div { background: #b8d8ae; }
+  .habit-list { gap: 11px; }
+  .habit-card { align-items: flex-start; gap: 13px; padding: 18px 16px; border: 0; border-radius: 14px; background: #fff; box-shadow: 0 6px 18px #654d6c12; }
+  .habit-card:hover { transform: none; border-color: transparent; }
+  .habit-icon { width: 42px; height: 42px; flex: none; }
+  .habit-info { min-width: 0; }
+  .habit-info strong { font-size: 15px; line-height: 1.35; }
+  .habit-info small { font-size: 13px; line-height: 1.4; }
+  .habit-card .checkbox { width: 32px; height: 32px; min-width: 32px; flex: none; font-size: 14px; }
+  .flexible-goal { gap: 11px; margin-top: 10px; padding-top: 14px; }
+  .goal-values { gap: 14px; }
+  .suggested-goal small, .realized-goal>small, .goal-progress-copy small { font-size: 10px; }
+  .suggested-goal strong { font-size: 14px; }
+  .number-control input { width: 82px; min-height: 44px; font-size: 16px; }
+  .number-control span { font-size: 12px; }
+  .goal-progress-copy strong { font-size: 11px; }
+  .status-banner { align-items: flex-start; margin: 20px 0 -8px; padding: 14px 16px; font-size: 13px; line-height: 1.45; }
+  .focus-card { margin-top: 0; padding: 24px 20px 22px; border-radius: 16px; box-shadow: 0 12px 30px #29382c1f; }
+  .focus-card .card-label { font-size: 11px; }
+  .daily-focus-list { gap: 14px; margin-top: 20px; }
+  .daily-focus-item { padding: 16px; }
+  .daily-focus-top { gap: 12px; }
+  .daily-focus-top strong { font-size: 15px; }
+  .daily-focus-top small, .daily-focus-item>small { font-size: 12px; line-height: 1.4; }
+  .daily-focus-top>span { font-size: 12px; }
+  .daily-focus-progress { height: 5px; }
+  .insight-card { margin-top: 14px; padding: 18px; box-shadow: 0 6px 18px #654d6c10; }
+  .insight-card strong { font-size: 13px; }
+  .insight-card p { font-size: 12px; line-height: 1.55; }
+  .reward-note { margin: 28px 4px; font-size: 12px; line-height: 1.55; }
+  .toast { max-width: calc(100vw - 40px); font-size: 13px; text-align: center; }
 }
 
 @media (max-width: 380px) {
-  .hero h1 { font-size: 33px; }
+  .page-shell { padding-right: 16px; padding-left: 16px; }
+  .topbar { height: 66px; }
   .brand { font-size: 18px; }
   .avatar { display: none; }
-  .habit-card { align-items: flex-start; }
-  .habit-card .checkbox { margin-top: 2px; }
-  .goal-values { gap: 8px; }
-}
-
-.habit-card .checkbox.checked {
-  border-color: #6e986a;
-  background: #6e986a;
-  color: #fff;
+  .hero { gap: 22px; padding: 34px 0 28px; }
+  .hero h1 { font-size: 35px; }
+  .hero-quote { font-size: 14px; }
+  .week-nav { margin-right: -16px; padding-right: 16px; gap: 7px; }
+  .day { flex-basis: 64px; min-height: 70px; }
+  .content-grid { padding-top: 26px; }
+  .section-heading h2 { font-size: 24px; }
+  .progress-card { padding: 18px 16px; }
+  .habit-card { gap: 10px; padding: 16px 13px; }
+  .habit-icon { width: 38px; height: 38px; }
+  .habit-info strong { font-size: 14px; }
+  .habit-info small { font-size: 12px; }
+  .habit-card .checkbox { width: 32px; height: 32px; min-width: 32px; }
+  .focus-card { padding: 20px 16px; }
+  .daily-focus-item { padding: 14px; }
 }
