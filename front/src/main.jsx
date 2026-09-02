@@ -433,7 +433,7 @@ function App() {
           const meta = metasFlexiveis[habit.id]
           const { realizado, progresso: progressoMeta, texto: textoProgresso } = detalhesDaMeta(habit.id)
 
-          return <article key={habit.id} className={`habit-card category-${habit.category} ${meta ? 'has-flexible-goal' : ''} ${done ? 'done' : ''}`}>
+          return <article key={habit.id} className={`habit-card category-${habit.category} ${meta ? 'has-flexible-goal' : ''} ${done ? 'done' : ''}`} onClick={() => { if (!meta) toggleHabit(habit.id) }} onKeyDown={(event) => { if (!meta && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); toggleHabit(habit.id) } }} role={meta ? undefined : 'button'} tabIndex={meta ? undefined : 0}>
             <span className={`habit-icon ${habit.color}`}>{habit.icon}</span>
             <span className="habit-info">
               <span className={`category-badge ${habit.category}`}>{categoryLabels[habit.category]}</span>
@@ -448,7 +448,7 @@ function App() {
                 <span className="goal-progress" role="progressbar" aria-label={`Progresso de ${habit.title}`} aria-valuemin="0" aria-valuemax="100" aria-valuenow={Math.min(progressoMeta, 100)}><span style={{ width: `${Math.min(progressoMeta, 100)}%` }} /></span>
               </span>}
             </span>
-            <button type="button" className={`checkbox ${done ? 'checked' : ''}`} onClick={() => toggleHabit(habit.id)} disabled={Boolean(syncingHabit)} aria-pressed={done} aria-label={`${done ? 'Desmarcar' : 'Marcar'} ${habit.title} como concluído`}>{done ? '✓' : syncingHabit === habit.id ? '…' : ''}</button>
+            <button type="button" className={`checkbox ${done ? 'checked' : ''}`} onClick={(event) => { event.stopPropagation(); toggleHabit(habit.id) }} disabled={Boolean(syncingHabit)} aria-pressed={done} aria-label={`${done ? 'Desmarcar' : 'Marcar'} ${habit.title} como concluído`}>{done ? '✓' : syncingHabit === habit.id ? '…' : ''}</button>
           </article>
         })}</div>
         <div className="reward-note"><span>✧</span><p><strong>O prazer está no processo.</strong><br />Cada confirmação sincronizada é uma escolha feita com intenção.</p></div>
